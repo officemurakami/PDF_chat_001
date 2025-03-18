@@ -32,7 +32,7 @@ def ask_gemini_about_pdf(text, question):
 # --- Streamlit UI ---
 st.title("📄 社内PDF QAチャットボット")
 
-# --- PDFファイル読み込み ---
+# --- PDF読み込み ---
 pdf_path = "sample.pdf"
 if "pdf_text" not in st.session_state:
     try:
@@ -43,26 +43,26 @@ if "pdf_text" not in st.session_state:
 
 # --- セッション初期化 ---
 if "question" not in st.session_state:
-    st.session_state.question = ""
+    st.session_state["question"] = ""
 if "answer" not in st.session_state:
-    st.session_state.answer = ""
+    st.session_state["answer"] = ""
 
-# --- 質問入力欄（セッション連携） ---
+# --- 入力フォーム（セッションキー付き） ---
 st.text_input("質問を入力してください", key="question")
 
 # 💬 質問ボタン
-if st.button("💬 質問する") and st.session_state.question:
-    st.session_state.answer = ask_gemini_about_pdf(
-        st.session_state["pdf_text"], st.session_state.question
+if st.button("💬 質問する") and st.session_state["question"]:
+    st.session_state["answer"] = ask_gemini_about_pdf(
+        st.session_state["pdf_text"], st.session_state["question"]
     )
 
 # 🔄 クリアボタン
 if st.button("🔄 質問をクリア"):
-    st.session_state.question = ""
-    st.session_state.answer = ""
+    st.session_state["question"] = ""
+    st.session_state["answer"] = ""
     st.rerun()
 
 # --- 回答表示 ---
-if st.session_state.answer:
+if st.session_state["answer"]:
     st.markdown("### 回答：")
-    st.write(st.session_state.answer)
+    st.write(st.session_state["answer"])
