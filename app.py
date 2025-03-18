@@ -32,10 +32,8 @@ def ask_gemini_about_pdf(text, question):
 # --- Streamlit UI ---
 st.title("📄 社内PDF QAチャットボット")
 
-# ここで使用するPDFファイル名を固定（GitHubに一緒にアップロードするファイル名）
+# 事前にPDFを読み込む
 pdf_path = "sample.pdf"
-
-# PDFテキストをセッションに保存（初回のみ実行）
 if "pdf_text" not in st.session_state:
     try:
         st.session_state["pdf_text"] = extract_text_from_pdf(pdf_path)
@@ -43,11 +41,23 @@ if "pdf_text" not in st.session_state:
         st.error(f"PDFの読み込み中にエラーが発生しました：{e}")
         st.stop()
 
-# ユーザーの質問入力
+# 質問入力フォーム
 question = st.text_input("質問を入力してください")
 
+# 回答エリア（初期化）
+if "answer" not in st.session_state:
+    st.session_state.answer = ""
+
+# 💬 実行ボタン（質問送信）
+if st.button("💬 質問する") and question:
+    st.session_state.answer = ask_gemini_about_pdf(st.session_state["pdf_text"], question)
+
+# 🔄 クリアボタン（入力と結果をリセット）
+if st.button("🔄 質問をクリア"):
+    st.session_state.answer = ""
+    st.experimental_rerun()
+
 # 回答の表示
-if question:
-    answer = ask_gemini_about_pdf(st.session_state["pdf_text"], question)
+if st.session_state.answer:
     st.markdown("### 回答：")
-    st.write(answer)
+    st.write(st.session_state.answer)
