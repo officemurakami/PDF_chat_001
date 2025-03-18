@@ -44,7 +44,7 @@ if "pdf_text" not in st.session_state:
 # 質問入力フォーム
 question = st.text_input("質問を入力してください")
 
-# 回答エリア（初期化）
+# 回答の保持
 if "answer" not in st.session_state:
     st.session_state.answer = ""
 
@@ -55,7 +55,7 @@ if st.button("💬 質問する") and question:
 # 🔄 クリアボタン（入力と結果をリセット）
 if st.button("🔄 質問をクリア"):
     st.session_state.answer = ""
-    st.experimental_rerun()
+    st.rerun()  # ✅ 修正済み！experimental_rerun → rerun
 
 # 回答の表示
 if st.session_state.answer:
