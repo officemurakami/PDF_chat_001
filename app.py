@@ -30,9 +30,9 @@ def ask_gemini_about_pdf(text, question):
         return f"❌ エラー: {res.status_code} - {res.text}"
 
 # --- Streamlit UI ---
-st.title("📄 業務分類 QAチャットボット")
+st.title("📄 社内PDF QAチャットボット")
 
-# --- PDF読み込み ---
+# --- PDF読み込み（初期化される可能性があるので毎回チェック） ---
 pdf_path = "sample.pdf"
 if "pdf_text" not in st.session_state:
     try:
@@ -45,7 +45,7 @@ if "pdf_text" not in st.session_state:
 if "answer" not in st.session_state:
     st.session_state["answer"] = ""
 
-# --- フォームによる質問入力＆送信 ---
+# --- フォームで質問入力と送信 ---
 with st.form("qa_form"):
     question = st.text_input("質問を入力してください", value="")
     submitted = st.form_submit_button("💬 質問する")
@@ -55,11 +55,22 @@ with st.form("qa_form"):
             st.session_state["pdf_text"], question
         )
 
-# 🔄 回答のみクリア（入力欄はフォームだから安全に初期化できる）
-if st.button("🔄 回答をクリア"):
-    st.session_state["answer"] = ""
-
 # --- 回答表示 ---
 if st.session_state["answer"]:
     st.markdown("### 回答：")
     st.write(st.session_state["answer"])
+
+# --- ボタンエリア ---
+col1, col2 = st.columns(2)
+
+# 🔄 回答のみクリア
+with col1:
+    if st.button("🧹 回答クリア"):
+        st.session_state["answer"] = ""
+
+# 🔁 全初期化（セッション全消去）
+with col2:
+    if st.button("🔁 すべて初期化"):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.rerun()
