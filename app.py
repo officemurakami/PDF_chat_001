@@ -32,15 +32,22 @@ def ask_gemini_about_pdf(text, question):
 # --- Streamlit UI ---
 st.title("📄 社内PDF QAチャットボット")
 
-uploaded_file = st.file_uploader("PDFファイルをアップロードしてください", type="pdf")
+# ここで使用するPDFファイル名を固定（GitHubに一緒にアップロードするファイル名）
+pdf_path = "sample.pdf"
+
+# PDFテキストをセッションに保存（初回のみ実行）
+if "pdf_text" not in st.session_state:
+    try:
+        st.session_state["pdf_text"] = extract_text_from_pdf(pdf_path)
+    except Exception as e:
+        st.error(f"PDFの読み込み中にエラーが発生しました：{e}")
+        st.stop()
+
+# ユーザーの質問入力
 question = st.text_input("質問を入力してください")
 
-if uploaded_file and question:
-    with open("uploaded.pdf", "wb") as f:
-        f.write(uploaded_file.read())
-
-    text = extract_text_from_pdf("uploaded.pdf")
-    answer = ask_gemini_about_pdf(text, question)
-
+# 回答の表示
+if question:
+    answer = ask_gemini_about_pdf(st.session_state["pdf_text"], question)
     st.markdown("### 回答：")
     st.write(answer)
