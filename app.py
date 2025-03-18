@@ -29,30 +29,31 @@ def ask_gemini_about_pdf(text, question):
     else:
         return f"❌ エラー: {res.status_code} - {res.text}"
 
-# --- Streamlit UI ---
-st.title("📄 社内PDF QAチャットボット")
+# --- タイトル ---
+st.title("📄 業務分類QAボット")
 
-# --- PDF読み込み（初期化される可能性があるので毎回チェック） ---
+# --- セッション初期化（安全チェック） ---
+for key in ["answer", "question", "pdf_text"]:
+    if key not in st.session_state:
+        st.session_state[key] = ""
+
+# --- PDF読み込み（セッションにない場合のみ） ---
 pdf_path = "sample.pdf"
-if "pdf_text" not in st.session_state:
+if not st.session_state["pdf_text"]:
     try:
         st.session_state["pdf_text"] = extract_text_from_pdf(pdf_path)
     except Exception as e:
         st.error(f"PDFの読み込み中にエラーが発生しました：{e}")
         st.stop()
 
-# --- 回答の状態を初期化 ---
-if "answer" not in st.session_state:
-    st.session_state["answer"] = ""
-
-# --- フォームで質問入力と送信 ---
+# --- フォームで質問入力＆送信 ---
 with st.form("qa_form"):
-    question = st.text_input("質問を入力してください", value="")
+    st.session_state["question"] = st.text_input("質問を入力してください", value=st.session_state["question"])
     submitted = st.form_submit_button("💬 質問する")
 
-    if submitted and question:
+    if submitted and st.session_state["question"]:
         st.session_state["answer"] = ask_gemini_about_pdf(
-            st.session_state["pdf_text"], question
+            st.session_state["pdf_text"], st.session_state["question"]
         )
 
 # --- 回答表示 ---
@@ -60,17 +61,17 @@ if st.session_state["answer"]:
     st.markdown("### 回答：")
     st.write(st.session_state["answer"])
 
-# --- ボタンエリア ---
+# --- ボタン列 ---
 col1, col2 = st.columns(2)
 
-# 🔄 回答のみクリア
+# 🧹 回答のみクリア
 with col1:
     if st.button("🧹 回答クリア"):
         st.session_state["answer"] = ""
 
-# 🔁 全初期化（セッション全消去）
+# 🔁 全初期化（PDF・質問・回答すべて）
 with col2:
-    if st.button("🔁 すべて初期化"):
+    if st.button("🔁 すべて初期化（PDF含む）"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
