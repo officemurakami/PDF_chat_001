@@ -30,7 +30,7 @@ def ask_gemini_about_pdf(text, question):
         return f"❌ エラー: {res.status_code} - {res.text}"
 
 # --- Streamlit UI ---
-st.title("📄 社内PDF QAチャットボット")
+st.title("📄 業務分類 QAチャットボット")
 
 # --- PDF読み込み ---
 pdf_path = "sample.pdf"
