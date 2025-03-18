@@ -41,26 +41,23 @@ if "pdf_text" not in st.session_state:
         st.error(f"PDFの読み込み中にエラーが発生しました：{e}")
         st.stop()
 
-# --- セッション初期化 ---
-if "question" not in st.session_state:
-    st.session_state["question"] = ""
+# --- 回答の状態を初期化 ---
 if "answer" not in st.session_state:
     st.session_state["answer"] = ""
 
-# --- 入力フォーム（セッションキー付き） ---
-st.text_input("質問を入力してください", key="question")
+# --- フォームによる質問入力＆送信 ---
+with st.form("qa_form"):
+    question = st.text_input("質問を入力してください", value="")
+    submitted = st.form_submit_button("💬 質問する")
 
-# 💬 質問ボタン
-if st.button("💬 質問する") and st.session_state["question"]:
-    st.session_state["answer"] = ask_gemini_about_pdf(
-        st.session_state["pdf_text"], st.session_state["question"]
-    )
+    if submitted and question:
+        st.session_state["answer"] = ask_gemini_about_pdf(
+            st.session_state["pdf_text"], question
+        )
 
-# 🔄 クリアボタン
-if st.button("🔄 質問をクリア"):
-    st.session_state["question"] = ""
+# 🔄 回答のみクリア（入力欄はフォームだから安全に初期化できる）
+if st.button("🔄 回答をクリア"):
     st.session_state["answer"] = ""
-    st.rerun()
 
 # --- 回答表示 ---
 if st.session_state["answer"]:
