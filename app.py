@@ -69,9 +69,10 @@ with st.form("qa_form"):
 
     if submitted and question:
         st.session_state["question"] = question
-        st.session_state["answer"] = ask_gemini_about_pdf(
-            st.session_state["pdf_text"], question
-        )
+        with st.spinner("⌛ 回答を考えています..."):
+            st.session_state["answer"] = ask_gemini_about_pdf(
+                st.session_state["pdf_text"], question
+            )
 
 # --- 回答表示（実行後のみ） ---
 if st.session_state["answer"] and st.session_state["question"]:
