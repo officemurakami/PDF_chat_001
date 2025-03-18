@@ -32,14 +32,14 @@ def ask_gemini_about_pdf(text, question):
 # --- タイトル ---
 st.title("📄 業務分類QAボット")
 
-# --- セッション初期化（安全チェック） ---
-for key in ["answer", "question", "pdf_text"]:
+# --- セッション初期化（PDFは初期化しない） ---
+for key in ["answer", "question"]:
     if key not in st.session_state:
         st.session_state[key] = ""
 
-# --- PDF読み込み（セッションにない場合のみ） ---
+# --- PDF読み込み（セッションに保持） ---
 pdf_path = "sample.pdf"
-if not st.session_state["pdf_text"]:
+if "pdf_text" not in st.session_state:
     try:
         st.session_state["pdf_text"] = extract_text_from_pdf(pdf_path)
     except Exception as e:
@@ -69,9 +69,10 @@ with col1:
     if st.button("🧹 回答クリア"):
         st.session_state["answer"] = ""
 
-# 🔁 全初期化（PDF・質問・回答すべて）
+# 🔁 質問＋回答の初期化（PDFは残す）
 with col2:
-    if st.button("🔁 すべて初期化（PDF含む）"):
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
+    if st.button("🔁 初期化（PDFは残す）"):
+        for key in ["question", "answer"]:
+            if key in st.session_state:
+                del st.session_state[key]
         st.rerun()
